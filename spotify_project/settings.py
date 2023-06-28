@@ -13,7 +13,8 @@ import os
 import dj_database_url
 from pathlib import Path
 import mimetypes
-mimetypes.add_type("text/html", ".html", True)
+mimetypes.add_type("text/html", ".js", True)
+mimetypes.add_type("text/html", ".css", True)
 
 # env = environ.Env(
 #     # set casting, default value
