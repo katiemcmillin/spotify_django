@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'spotify_project.urls'
@@ -88,6 +89,7 @@ WSGI_APPLICATION = 'spotify_project.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
+        
         default='postgres://katiemcmillin:5432@localhost/spotify', conn_max_age=600, conn_health_checks=True
     )
 }
@@ -125,14 +127,23 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# This setting tells Django at which URL static files are going to be served to the user.
+# Here, they well be accessible at your-domain.onrender.com/static/...
+STATIC_URL = '/static/'
 
+# Following settings only make sense on production and may break development environments.
 if not DEBUG:
-    STATIC_ROOT = STATIC_ROOT = os.path.join(BASE_DIR, '')
+    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'main_app/static')]
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'main_app/static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

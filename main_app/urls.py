@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
+from django.views.static import serve
 
 urlpatterns = [
     # This first path tells me that it's looking in views.py for a class that's named Home at localhost:8000/
