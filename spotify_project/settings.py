@@ -12,13 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
-import mimetypes
-mimetypes.add_type("application/javascript", ".js", True)
 
-# env = environ.Env(
-#     # set casting, default value
-#     DEBUG=(bool, False)
-# )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,7 +84,7 @@ WSGI_APPLICATION = 'spotify_project.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         
-        default='postgres://katiemcmillin:5432@localhost/spotify', conn_max_age=600, conn_health_checks=True
+        default='postgres://katiemcmillin:5432@localhos/spotify', conn_max_age=600, conn_health_checks=True
     )
 }
 
