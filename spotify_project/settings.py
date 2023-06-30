@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'spotify_project.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         
-        default='postgrs://katiemcmillin:5432@localhost/spotify', conn_max_age=600, conn_health_checks=True
+        default='postgres://katiemcmillin:5432@localhost/spotify', conn_max_age=600, conn_health_checks=True
     )
 }
 
