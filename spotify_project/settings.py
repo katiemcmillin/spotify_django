@@ -143,3 +143,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'main_app/static')]
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Add this variable to specify where successful logins should redirect to
+LOGIN_REDIRECT_URL = '/artists/'
+LOGOUT_REDIRECT_URL = '/'

@@ -1,10 +1,17 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from .models import Artist, Song, Playlist
 # This will import the class we are extending 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.base import TemplateView
 from django.views.generic import DetailView
 from django.views import View
+from django.urls import reverse
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+# Auth
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 
 # Create your views here.
 # I created a class named Home that's a child of TemplateView and is inheriting what's built into the parent class
@@ -20,13 +27,13 @@ class Home(TemplateView):
 class About(TemplateView):
     template_name = "about.html"
 
-class SongList(TemplateView):
-    template_name = "song_list.html"
+# class SongList(TemplateView):
+#     template_name = "song_list.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["songs"] = Song.objects.all()
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["songs"] = Song.objects.all()
+#         return context
     
 class SongCreate(View):
     def post(self, request, pk):
@@ -40,23 +47,32 @@ class ArtistCreate(CreateView):
     model = Artist
     fields = ['name', 'img', 'bio', 'verified_artist']
     template_name = "artist_create.html"
-    success_url = '/artists/'
 
+    # This is our new method that will add the user into our submitted form
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super(ArtistCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        print(self.kwargs)
+        return reverse('artist_detail', kwargs={'pk': self.object.pk})
+    
+@method_decorator(login_required, name='dispatch')
 class ArtistList(TemplateView):
     template_name = "artist_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # This is essentially a query built into Django that's saying SELECT * FROM main_app_artist
-        # self.request.GET is a dictionary just like in express we have req.query
-        # print(self.request.GET)
-        name = self.request.GET.get('name')
+        name = self.request.GET.get("name")
         if name != None:
-            # This is essentially a regex matcher that's built in for us. It's searching for anything where the name of the artist contains (at any point) this name if there is a query
-            context["artists"] = Artist.objects.filter(name__icontains=name)
+            context["artists"] = Artist.objects.filter(
+                name__icontains=name, user=self.request.user)
+            context["header"] = f"Searching for {name}"
         else:
-            context["artists"] = Artist.objects.all()
+            context["artists"] = Artist.objects.filter(user=self.request.user)
+            context["header"] = "Trending Artists"
         return context
+
     
 class ArtistDetail(DetailView):
     model = Artist
@@ -93,3 +109,21 @@ class PlaylistSongAssoc(View):
             # add to the join table the given song_id
             Playlist.objects.get(pk=pk).songs.add(song_pk)
         return redirect('home')
+    
+class Signup(View):
+    # show a form to fill out
+    def get(self, request):
+        form = UserCreationForm()
+        context = {"form": form}
+        return render(request, "registration/signup.html", context)
+    # on form submit, validate the form and login the user.
+    def post(self, request):
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("artist_list")
+        else:
+            context = {"form": form}
+            return render(request, "registration/signup.html", context)
+

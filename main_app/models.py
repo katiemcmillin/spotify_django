@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 import time
 
 # Create your models here.
@@ -8,6 +9,7 @@ class Artist(models.Model):
     bio = models.CharField(max_length=500)
     verified_artist = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
 
     def __str__(self):
         return "Artist: " + self.name
